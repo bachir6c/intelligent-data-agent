@@ -1,0 +1,426 @@
+[
+    {
+        "id": 1,
+        "category": "general",
+        "question": "Qu'est-ce qu'une moyenne arithmétique ?",
+        "expected_tool_use": false
+    },
+    {
+        "id": 2,
+        "category": "simple_sql",
+        "question": "Combien de tables contient la base de données ?",
+        "expected_tool_use": true,
+        "expected_answer": "5"
+    },
+    {
+        "id": 3,
+        "category": "aggregation",
+        "question": "Quelles sont les 3 agences avec le plus de transactions ?",
+        "expected_tool_use": true,
+        "expected_contains": [
+            "Agency_08",
+            "Agency_21",
+            "Agency_16"
+        ]
+    },
+    {
+        "id": 4,
+        "category": "anomaly",
+        "question": "Quels jours présentent une activité anormale de retraits pour l'agence 8 ?",
+        "expected_tool_use": true,
+        "expected_contains": [
+            "17",
+            "18",
+            "19",
+            "2026"
+        ]
+    },
+    {
+        "id": 5,
+        "category": "multi_agency_anomaly",
+        "question": "Quelles agences présentent une activité anormale de retraits en mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_contains": [
+            "Agency_08"
+        ]
+    },
+    {
+        "id": 6,
+        "category": "channel_anomaly",
+        "question": "Quelles agences présentent une activité anormale de virements mobiles en août 2026 ?",
+        "expected_tool_use": true,
+        "expected_contains": [
+            "Agency_04"
+        ]
+    },
+    {
+        "id": 7,
+        "category": "trend",
+        "question": "Quelles agences ont connu une forte hausse progressive des dépôts en mai 2026 ?",
+        "expected_tool_use": true,
+        "expected_contains": [
+            "Agency_21"
+        ]
+    },
+    {
+        "id": 8,
+        "category": "amount_anomaly",
+        "question": "Quelles agences ont eu des montants de retraits anormalement élevés en mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": [
+           "detect_amount_anomalies"
+        ],
+        "expected_contains": [
+            "Agency_08",
+            "17",
+            "18",
+            "19",
+            
+            "2026"
+        ]
+    },
+    {
+        "id": 9,
+        "category": "visualization",
+        "question": "Fais-moi un graphique du nombre de retraits de l'agence 8 en mars 2026.",
+        "expected_tool_use": true,
+        "expected_chart": true
+    },
+    {
+        "id": 10,
+        "category": "unanswerable",
+        "question": "Quel temps faisait-il à Lyon lors des transactions du 17 mars 2026 ?",
+        "expected_behavior": "abstain"
+    },
+    {
+        "id": 11,
+        "category": "schema",
+        "question": "Quelle table contient les colonnes transaction_date et amount ?",
+        "expected_tool_use": true,
+        "expected_tools": ["get_table_schema"],
+        "expected_contains": ["transactions"]
+    },
+    {
+        "id": 12,
+        "category": "schema",
+        "question": "Quelle colonne permet de relier une transaction à une agence ?",
+        "expected_tool_use": true,
+        "expected_tools": ["get_table_schema"],
+        "expected_answer": "agency_id"
+    },
+    {
+        "id": 13,
+        "category": "lookup",
+        "question": "Quel est l'identifiant du type d'opération Cash Withdrawal ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "1"
+    },
+    {
+        "id": 14,
+        "category": "lookup",
+        "question": "Quels sont les types d'opérations disponibles dans la base ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": [
+            "Cash Withdrawal",
+            "Cash Deposit",
+            "Card Payment",
+            "Bank Transfer",
+            "Salary Deposit",
+            "Loan Repayment",
+            "Bank Fee"
+        ]
+    },
+    {
+        "id": 15,
+        "category": "aggregation",
+        "question": "Combien d'agences contient la base de données ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "30"
+    },
+    {
+        "id": 16,
+        "category": "aggregation",
+        "question": "Combien de clients contient la base de données ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "10000"
+    },
+    {
+        "id": 17,
+        "category": "aggregation",
+        "question": "Combien de comptes bancaires contient la base de données ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "15000"
+    },
+    {
+        "id": 18,
+        "category": "lookup",
+        "question": "Quels canaux de transaction sont présents dans la base ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": [
+            "ATM",
+            "Branch",
+            "Mobile",
+            "Web",
+            "Card"
+        ]
+    },
+    {
+        "id": 19,
+        "category": "general",
+        "question": "Qu'est-ce qu'un z-score ?",
+        "expected_tool_use": false,
+        "expected_contains": [
+            "moyenne",
+            "écart"
+        ]
+    },
+    {
+        "id": 20,
+        "category": "general",
+        "question": "Quelle est la différence entre une moyenne et une médiane ?",
+        "expected_tool_use": false
+    },
+    {
+        "id": 21,
+        "category": "lookup",
+        "question": "Quel est le nom de l'agence dont l'identifiant est 8 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": ["Agency_08"]
+    },
+    {
+        "id": 22,
+        "category": "temporal",
+        "question": "Combien de retraits ont été effectués par l'agence 8 le 17 mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "70"
+    },
+    {
+        "id": 23,
+        "category": "temporal",
+        "question": "Combien de retraits ont été effectués par l'agence 8 le 18 mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "72"
+    },
+    {
+        "id": 24,
+        "category": "channel_anomaly",
+        "question": "Quelle agence présente une anomalie de virements sur le canal Mobile en août 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_channel_anomalies"],
+        "expected_contains": ["Agency_04"]
+    },
+    {
+        "id": 25,
+        "category": "trend",
+        "question": "Quelle agence montre une augmentation progressive exceptionnelle des dépôts en espèces en mai 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_trend_anomalies"],
+        "expected_contains": ["Agency_21"]
+    },
+    {
+        "id": 26,
+        "category": "anomaly",
+        "question": "L'agence 8 présente-t-elle des jours anormaux de retraits en mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_anomalies"],
+        "expected_contains": [
+            "17",
+            "18",
+            "19"
+        ]
+    },
+    {
+        "id": 27,
+        "category": "visualization",
+        "question": "Fais-moi un graphique du montant quotidien des retraits de l'agence 8 en mars 2026.",
+        "expected_tool_use": true,
+        "expected_tools": ["plot_daily_activity"],
+        "expected_chart": true
+    },
+    {
+        "id": 28,
+        "category": "unanswerable",
+        "question": "Quel conseiller bancaire a traité les transactions de l'agence 8 le 17 mars 2026 ?",
+        "expected_behavior": "abstain"
+    },
+    {
+        "id": 29,
+        "category": "unanswerable",
+        "question": "Quelle était la température extérieure lors des retraits de l'agence 8 le 18 mars 2026 ?",
+        "expected_behavior": "abstain"
+    },
+    {
+        "id": 30,
+        "category": "general",
+        "question": "Quelle est la différence entre COUNT et SUM en SQL ?",
+        "expected_tool_use": false,
+        "expected_contains": [
+            "count",
+            "sum"
+        ]
+    },
+    {
+        "id": 31,
+        "category": "join_aggregation",
+        "question": "Quelle agence a enregistré le plus de transactions ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": ["Agency_08", "3614"]
+    },
+    {
+        "id": 32,
+        "category": "join_aggregation",
+        "question": "Combien de transactions ont été enregistrées par Agency_21 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "3499"
+    },
+    {
+        "id": 33,
+        "category": "join_aggregation",
+        "question": "Combien de transactions ont été enregistrées par Agency_16 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_answer": "3456"
+    },
+    {
+        "id": 34,
+        "category": "lookup",
+        "question": "Quel type d'opération correspond à l'identifiant 4 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": ["Bank Transfer"]
+    },
+    {
+        "id": 35,
+        "category": "lookup",
+        "question": "À quelle catégorie appartient l'opération Cash Withdrawal ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": ["Cash"]
+    },
+    {
+        "id": 36,
+        "category": "temporal_amount",
+        "question": "Quel est le montant total des retraits de l'agence 8 le 17 mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": ["71150", "68"]
+    },
+    {
+        "id": 37,
+        "category": "temporal_amount",
+        "question": "Quel est le montant total des retraits de l'agence 8 le 18 mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["execute_sql"],
+        "expected_contains": ["69139", "29"]
+    },
+    {
+        "id": 38,
+        "category": "multi_step",
+        "question": "Quelle agence présente les trois journées anormales de retraits des 17, 18 et 19 mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_anomalous_agencies"],
+        "expected_contains": ["Agency_08"]
+    },
+    {
+        "id": 39,
+        "category": "multi_step",
+        "question": "Quel type d'opération présente une forte hausse progressive à l'agence 21 en mai 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_trend_anomalies"],
+        "expected_contains": ["Cash Deposit"]
+    },
+    {
+        "id": 40,
+        "category": "channel_anomaly",
+        "question": "Sur quel canal l'agence 4 présente-t-elle une anomalie de virements en août 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_channel_anomalies"],
+        "expected_contains": ["Mobile"]
+    },
+    {
+        "id": 41,
+        "category": "amount_anomaly",
+        "question": "Quelle agence présente des montants de retraits exceptionnellement élevés les 17, 18 et 19 mars 2026 ?",
+        "expected_tool_use": true,
+        "expected_tools": ["detect_amount_anomalies"],
+        "expected_contains": ["Agency_08"]
+    },
+    {
+        "id": 42,
+        "category": "visualization",
+        "question": "Trace l'évolution quotidienne du nombre de virements mobiles de l'agence 4 en août 2026.",
+        "expected_tool_use": true,
+        "expected_tools": ["plot_daily_activity"],
+        "expected_chart": true
+    },
+    {
+        "id": 43,
+        "category": "unanswerable",
+        "question": "Quel était le taux directeur de la BCE lors des transactions du 17 mars 2026 ?",
+        "expected_behavior": "abstain"
+    },
+    {
+        "id": 44,
+        "category": "unanswerable",
+        "question": "Quelle était l'adresse IP utilisée pour chaque transaction de l'agence 8 ?",
+        "expected_behavior": "abstain"
+    },
+    {
+        "id": 45,
+        "category": "unanswerable",
+        "question": "Quel employé a validé le plus de transactions dans la base ?",
+        "expected_behavior": "abstain"
+    },
+    {
+        "id": 46,
+        "category": "general",
+        "question": "À quoi sert une clé étrangère dans une base SQL ?",
+        "expected_tool_use": false,
+        "expected_contains": ["table"]
+    },
+    {
+        "id": 47,
+        "category": "general",
+        "question": "Quelle est la différence entre GROUP BY et ORDER BY en SQL ?",
+        "expected_tool_use": false,
+        "expected_contains": ["group", "order"]
+    },
+    {
+        "id": 48,
+        "category": "general",
+        "question": "Qu'est-ce qu'une valeur aberrante en statistique ?",
+        "expected_tool_use": false
+    },
+    {
+        "id": 49,
+        "category": "schema",
+        "question": "La table transactions contient-elle une colonne indiquant le statut de la transaction ?",
+        "expected_tool_use": true,
+        "expected_tools": ["get_table_schema"],
+        "expected_contains": ["status"]
+    },
+    {
+        "id": 50,
+        "category": "schema",
+        "question": "Quelles colonnes permettent de relier transactions aux comptes, clients, agences et types d'opérations ?",
+        "expected_tool_use": true,
+        "expected_tools": ["get_table_schema"],
+        "expected_contains": [
+            "account_id",
+            "customer_id",
+            "agency_id",
+            "operation_type_id"
+        ]
+    }
+]

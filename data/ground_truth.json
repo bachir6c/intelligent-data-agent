@@ -1,0 +1,33 @@
+[
+    {
+        "anomaly_id": 1,
+        "type": "SPIKE",
+        "agency_id": 8,
+        "operation": "Cash Withdrawal",
+        "start_date": "2026-03-17",
+        "end_date": "2026-03-19",
+        "description": "Abnormally high cash withdrawal activity",
+        "transactions_added": 210
+    },
+    {
+        "anomaly_id": 2,
+        "type": "GRADUAL_INCREASE",
+        "agency_id": 21,
+        "operation": "Cash Deposit",
+        "start_date": "2026-05-04",
+        "end_date": "2026-05-25",
+        "description": "Progressive increase in cash deposits",
+        "transactions_added": 120
+    },
+    {
+        "anomaly_id": 3,
+        "type": "CHANNEL_SPECIFIC_SPIKE",
+        "agency_id": 4,
+        "operation": "Bank Transfer",
+        "channel": "Mobile",
+        "start_date": "2026-08-10",
+        "end_date": "2026-08-14",
+        "description": "Abnormally high mobile bank transfer activity",
+        "transactions_added": 150
+    }
+]

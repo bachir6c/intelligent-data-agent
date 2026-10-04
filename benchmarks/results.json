@@ -1,0 +1,835 @@
+{
+    "total_questions": 50,
+    "evaluated": 50,
+    "passed": 50,
+    "failed": 0,
+    "remaining": 0,
+    "accuracy_percent": 100.0,
+    "results": [
+        {
+            "id": 1,
+            "category": "general",
+            "question": "Qu'est-ce qu'une moyenne arithmétique ?",
+            "answer": "Une moyenne arithmétique, aussi appelée moyenne simple, est la somme de plusieurs valeurs divisée par le nombre de valeurs.  \nFormule :  \n\n\\[\n\\text{moyenne} = \\frac{\\sum_{i=1}^{n} x_i}{n}\n\\]\n\noù \\(x_i\\) sont les valeurs et \\(n\\) est leur nombre. Elle donne une mesure centrale de l’ensemble des données.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 2,
+            "category": "simple_sql",
+            "question": "Combien de tables contient la base de données ?",
+            "answer": "La base de données contient **5 tables** :  \n- accounts  \n- agencies  \n- customers  \n- operation_types  \n- transactions",
+            "tools_used": [
+                "list_tables"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 3,
+            "category": "aggregation",
+            "question": "Quelles sont les 3 agences avec le plus de transactions ?",
+            "answer": "Les trois agences ayant enregistré le plus grand nombre de transactions sont :\n\n| Rang | ID de l’agence | Nom de l’agence | Nombre de transactions |\n|------|----------------|-----------------|------------------------|\n| 1 | 8 | Agency_08 | 3 614 |\n| 2 | 21 | Agency_21 | 3 499 |\n| 3 | 16 | Agency_16 | 3 456 |\n\nCes chiffres proviennent de la table `transactions` agrégée par `agency_id`.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 4,
+            "category": "anomaly",
+            "question": "Quels jours présentent une activité anormale de retraits pour l'agence 8 ?",
+            "answer": "Les jours où l’activité de retraits est anormale pour l’agence 8 sont :\n\n- 17 mars 2026 (70 retraits, z‑score ≈ 9,85)  \n- 18 mars 2026 (72 retraits, z‑score ≈ 10,14)  \n- 19 mars 2026 (70 retraits, z‑score ≈ 9,85)",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "detect_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 5,
+            "category": "multi_agency_anomaly",
+            "question": "Quelles agences présentent une activité anormale de retraits en mars 2026 ?",
+            "answer": "Les agences présentant une activité anormale de retraits (opération type 1 : « Cash Withdrawal ») en mars 2026 sont :\n\n| ID agence | Nom de l’agence | Date(s) anormale(s) | Nombre de retraits | Z‑score |\n|-----------|-----------------|---------------------|--------------------|---------|\n| 8 | Agency_08 | 17 / 18 / 19 mars | 70 / 72 / 70 | 77.17 / 79.39 / 77.17 |\n\nCes valeurs dépassent largement le seuil de 3 σ utilisé par l’outil d’anomalie, indiquant une activité de retraits exceptionnellement élevée pour l’agence 08 durant ces journées.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "detect_anomalous_agencies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 6,
+            "category": "channel_anomaly",
+            "question": "Quelles agences présentent une activité anormale de virements mobiles en août 2026 ?",
+            "answer": "Les seules agences présentant une activité anormale de virements mobiles en août 2026 sont :\n\n| ID agence | Nom de l’agence | Dates d’anomalie | Nombre de virements mobiles |\n|-----------|-----------------|------------------|-----------------------------|\n| 4 | Agency_04 | 10 / 08 / 2026 – 14 / 08 / 2026 | 30 virements par jour |\n\nCes valeurs dépassent largement la moyenne de 0,12 virements par jour (z‑score ≈ 80 ), ce qui indique une activité anormale. Aucun autre établissement n’a franchi le seuil d’anomalie pour ce type de transaction et ce canal durant le mois d’août 2026.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "detect_channel_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 7,
+            "category": "trend",
+            "question": "Quelles agences ont connu une forte hausse progressive des dépôts en mai 2026 ?",
+            "answer": "Les seules agences présentant une forte hausse progressive des dépôts en mai 2026 sont :\n\n| ID d’agence | Nom de l’agence | Type de dépôt |\n|-------------|-----------------|---------------|\n| 21 | Agency_21 | Dépôt en espèces (Cash Deposit) |\n\nAucune autre agence n’a affiché une progression significative pour les dépôts (soit en espèces, soit en salaire) durant ce mois.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "detect_trend_anomalies",
+                "detect_trend_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 8,
+            "category": "amount_anomaly",
+            "question": "Quelles agences ont eu des montants de retraits anormalement élevés en mars 2026 ?",
+            "answer": "Les agences ayant affiché des montants de retraits anormalement élevés en mars 2026 sont :\n\n| ID agence | Nom de l’agence | Date | Montant total (z‑score) |\n|-----------|-----------------|------|--------------------------|\n| 8 | Agency_08 | 2026‑03‑17 | 71 150,68 |\n| 8 | Agency_08 | 2026‑03‑18 | 69 139,29 |\n| 8 | Agency_08 | 2026‑03‑19 | 69 516,60 |\n\nCes valeurs dépassent largement la moyenne de 287,64 avec des z‑scores supérieurs à 160, indiquant une anomalie statistiquement significative.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "detect_amount_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 9,
+            "category": "visualization",
+            "question": "Fais-moi un graphique du nombre de retraits de l'agence 8 en mars 2026.",
+            "answer": "Voici le graphique du nombre de retraits (Cash Withdrawal) effectués à l’agence 8 durant le mois de mars 2026 :\n\n![Graphique des retraits de l’agence 8 en mars 2026](G:\\\\Mon Drive\\\\dossiers polytech\\\\Semestre 8(4A)\\\\projet_S8\\\\intelligent-data-agent\\\\outputs\\\\agency_8_count.png)",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "plot_daily_activity"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "chart_created": true
+            },
+            "passed": true
+        },
+        {
+            "id": 10,
+            "category": "unanswerable",
+            "question": "Quel temps faisait-il à Lyon lors des transactions du 17 mars 2026 ?",
+            "answer": "Je ne peux pas répondre à cette question à partir des données disponibles dans la base de données bancaire. Les informations météorologiques ne sont pas stockées dans ce système.",
+            "tools_used": [],
+            "checks": {
+                "abstention_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 11,
+            "category": "schema",
+            "question": "Quelle table contient les colonnes transaction_date et amount ?",
+            "answer": "La table qui contient les colonnes `transaction_date` et `amount` est **transactions**.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 12,
+            "category": "schema",
+            "question": "Quelle colonne permet de relier une transaction à une agence ?",
+            "answer": "La colonne qui relie une transaction à une agence est **`agency_id`**.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 13,
+            "category": "lookup",
+            "question": "Quel est l'identifiant du type d'opération Cash Withdrawal ?",
+            "answer": "L’identifiant du type d’opération « Cash Withdrawal » est : **1**",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 14,
+            "category": "lookup",
+            "question": "Quels sont les types d'opérations disponibles dans la base ?",
+            "answer": "Les types d’opérations disponibles dans la base sont :\n\n| ID | Nom de l’opération | Catégorie |\n|----|--------------------|-----------|\n| 1  | Cash Withdrawal    | Cash      |\n| 2  | Cash Deposit       | Cash      |\n| 3  | Card Payment       | Payment   |\n| 4  | Bank Transfer      | Transfer  |\n| 5  | Salary Deposit     | Income    |\n| 6  | Loan Repayment     | Loan      |\n| 7  | Bank Fee           | Fee       |",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 15,
+            "category": "aggregation",
+            "question": "Combien d'agences contient la base de données ?",
+            "answer": "La base de données contient **30 agences**.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 16,
+            "category": "aggregation",
+            "question": "Combien de clients contient la base de données ?",
+            "answer": "La base de données contient **10 000** clients.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 17,
+            "category": "aggregation",
+            "question": "Combien de comptes bancaires contient la base de données ?",
+            "answer": "La base de données contient **15 000** comptes bancaires.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 18,
+            "category": "lookup",
+            "question": "Quels canaux de transaction sont présents dans la base ?",
+            "answer": "Les canaux de transaction présents dans la base sont :\n\n- Web  \n- ATM  \n- Card  \n- Branch  \n- Mobile",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 19,
+            "category": "general",
+            "question": "Qu'est-ce qu'un z-score ?",
+            "answer": "Un **z‑score** (ou score Z) est une mesure statistique qui indique combien d’écarts-types un élément est éloigné de la moyenne d’un ensemble de données.  \n\n- **Formule** :  \n  \\[\n  z = \\frac{X - \\mu}{\\sigma}\n  \\]\n  où \\(X\\) est la valeur observée, \\(\\mu\\) la moyenne de l’échantillon, et \\(\\sigma\\) son écart‑type.  \n\n- **Interprétation** :  \n  - \\(z = 0\\) : la valeur est exactement à la moyenne.  \n  - \\(z = 1\\) : la valeur est un écart‑type au-dessus de la moyenne.  \n  - \\(z = -2\\) : la valeur est deux écarts‑types en dessous de la moyenne.  \n\n- **Utilité** :  \n  Le z‑score permet de comparer des valeurs provenant de distributions différentes, de détecter des valeurs aberrantes (ex. z > 3 ou z < ‑3) et d’évaluer la normalité d’une distribution.  \n\nEn résumé, le z‑score normalise une valeur par rapport à la moyenne et à la dispersion de son groupe, facilitant ainsi l’identification d’anomalies ou de tendances.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 20,
+            "category": "general",
+            "question": "Quelle est la différence entre une moyenne et une médiane ?",
+            "answer": "La **moyenne** (ou moyenne arithmétique) est la somme de toutes les valeurs d’un ensemble divisée par le nombre de valeurs. Elle est sensible aux valeurs extrêmes : un seul chiffre très grand ou très petit peut faire varier considérablement la moyenne.\n\nLa **médiane** est la valeur qui sépare l’ensemble en deux parties égales lorsqu’on les classe par ordre croissant. Si le nombre de valeurs est pair, la médiane est la moyenne des deux valeurs centrales. La médiane est donc moins influencée par les valeurs extrêmes et donne une idée plus robuste de la tendance centrale lorsqu’il y a des outliers.\n\nEn résumé :\n- Moyenne : somme / nombre, sensible aux extrêmes.\n- Médiane : valeur centrale, robuste aux extrêmes.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 21,
+            "category": "lookup",
+            "question": "Quel est le nom de l'agence dont l'identifiant est 8 ?",
+            "answer": "Le nom de l'agence dont l'identifiant est 8 est : **Agency_08**",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 22,
+            "category": "temporal",
+            "question": "Combien de retraits ont été effectués par l'agence 8 le 17 mars 2026 ?",
+            "answer": "70\n\n",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 23,
+            "category": "temporal",
+            "question": "Combien de retraits ont été effectués par l'agence 8 le 18 mars 2026 ?",
+            "answer": "Il y a eu **72** retraits effectués par l'agence 8 le 18 mars 2026.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 24,
+            "category": "channel_anomaly",
+            "question": "Quelle agence présente une anomalie de virements sur le canal Mobile en août 2026 ?",
+            "answer": "L’agence 4 (nom : Agency_04) présente une anomalie de virements sur le canal Mobile en août 2026.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "detect_channel_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 25,
+            "category": "trend",
+            "question": "Quelle agence montre une augmentation progressive exceptionnelle des dépôts en espèces en mai 2026 ?",
+            "answer": "L’agence 21 montre une augmentation progressive exceptionnelle des dépôts en espèces en mai 2026.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "detect_trend_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 26,
+            "category": "anomaly",
+            "question": "L'agence 8 présente-t-elle des jours anormaux de retraits en mars 2026 ?",
+            "answer": "Oui.  \nPour l’agence 8 et l’opération « Cash Withdrawal » (ID = 1), les jours anormaux détectés en mars 2026 sont :\n\n| Date | Nombre de retraits | Z‑score |\n|------|--------------------|---------|\n| 2026‑03‑17 | 70 | 9,85 |\n| 2026‑03‑18 | 72 | 10,14 |\n| 2026‑03‑19 | 70 | 9,85 |\n\nCes jours dépassent largement le seuil de 2 σ, indiquant une activité anormale.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "detect_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 27,
+            "category": "visualization",
+            "question": "Fais-moi un graphique du montant quotidien des retraits de l'agence 8 en mars 2026.",
+            "answer": "Voici le graphique du montant quotidien des retraits (opération : Cash Withdrawal) de l’agence 8 pour le mois de mars 2026 :\n\n![Graphique des retraits de l'agence 8 en mars 2026](G:\\\\Mon Drive\\\\dossiers polytech\\\\Semestre 8(4A)\\\\projet_S8\\\\intelligent-data-agent\\\\outputs\\\\agency_8_amount.png)",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "plot_daily_activity"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "chart_created": true
+            },
+            "passed": true
+        },
+        {
+            "id": 28,
+            "category": "unanswerable",
+            "question": "Quel conseiller bancaire a traité les transactions de l'agence 8 le 17 mars 2026 ?",
+            "answer": "Je ne peux pas répondre à cette question avec les données disponibles.  \nLe schéma de la base ne contient aucune information sur les conseillers bancaires (aucune colonne ou table nommée « advisor », « conseiller », etc.). Par conséquent, il n’est pas possible de déterminer quel conseiller a traité les transactions de l’agence 8 le 17 mars 2026 à partir de cette base de données.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema"
+            ],
+            "checks": {
+                "abstention_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 29,
+            "category": "unanswerable",
+            "question": "Quelle était la température extérieure lors des retraits de l'agence 8 le 18 mars 2026 ?",
+            "answer": "Je suis désolé, mais je ne peux pas déterminer la température extérieure à partir des données disponibles.",
+            "tools_used": [],
+            "checks": {
+                "abstention_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 30,
+            "category": "general",
+            "question": "Quelle est la différence entre COUNT et SUM en SQL ?",
+            "answer": "En SQL, **COUNT** et **SUM** sont deux fonctions d’agrégation, mais elles servent à des fins différentes :\n\n| Fonction | Ce qu’elle compte / additionne | Utilisation typique |\n|----------|--------------------------------|---------------------|\n| **COUNT** | Le nombre de lignes (ou de valeurs non‑NULL) dans un groupe. | Compter le nombre de transactions, le nombre de clients, etc. |\n| **SUM** | La somme des valeurs numériques d’une colonne dans un groupe. | Calculer le total des montants d’une colonne `amount`, le total des soldes, etc. |\n\n**Points clés :**\n\n- `COUNT(*)` compte toutes les lignes, même si certaines colonnes sont NULL.  \n- `COUNT(colonne)` compte uniquement les lignes où `colonne` n’est pas NULL.  \n- `SUM(colonne)` ne fonctionne que sur des colonnes numériques et ignore les valeurs NULL.  \n\nEn résumé, utilisez **COUNT** pour obtenir un nombre de lignes ou d’occurrences, et **SUM** pour obtenir la somme des valeurs numériques.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 31,
+            "category": "join_aggregation",
+            "question": "Quelle agence a enregistré le plus de transactions ?",
+            "answer": "L’agence ayant enregistré le plus de transactions est :\n\n- **ID : 8**  \n- **Nom : Agency_08**  \n- **Nombre de transactions : 3614**",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 32,
+            "category": "join_aggregation",
+            "question": "Combien de transactions ont été enregistrées par Agency_21 ?",
+            "answer": "Il y a eu **3499** transactions enregistrées par Agency_21.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 33,
+            "category": "join_aggregation",
+            "question": "Combien de transactions ont été enregistrées par Agency_16 ?",
+            "answer": "Il y a eu **3456** transactions enregistrées par l’agence 16.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "answer_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 34,
+            "category": "lookup",
+            "question": "Quel type d'opération correspond à l'identifiant 4 ?",
+            "answer": "L’identifiant 4 correspond à l’opération : **Bank Transfer**",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 35,
+            "category": "lookup",
+            "question": "À quelle catégorie appartient l'opération Cash Withdrawal ?",
+            "answer": "L’opération « Cash Withdrawal » appartient à la catégorie **Cash**.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 36,
+            "category": "temporal_amount",
+            "question": "Quel est le montant total des retraits de l'agence 8 le 17 mars 2026 ?",
+            "answer": "Le montant total des retraits de l’agence 8 le 17 mars 2026 est : **71150.68**.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 37,
+            "category": "temporal_amount",
+            "question": "Quel est le montant total des retraits de l'agence 8 le 18 mars 2026 ?",
+            "answer": "Le montant total des retraits de l'agence 8 le 18 mars 2026 est 69139.29.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "get_table_schema",
+                "execute_sql"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 38,
+            "category": "multi_step",
+            "question": "Quelle agence présente les trois journées anormales de retraits des 17, 18 et 19 mars 2026 ?",
+            "answer": "L’agence qui a enregistré les trois journées anormales de retraits (17 , 18 et 19 mars 2026) est :\n\n- **Agence 08** (agency_id = 8)",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "get_table_schema",
+                "execute_sql",
+                "detect_anomalous_agencies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 39,
+            "category": "multi_step",
+            "question": "Quel type d'opération présente une forte hausse progressive à l'agence 21 en mai 2026 ?",
+            "answer": "L’opération qui montre une forte hausse progressive à l’agence 21 en mai 2026 est : **Cash Deposit**.",
+            "tools_used": [
+                "detect_trend_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 40,
+            "category": "channel_anomaly",
+            "question": "Sur quel canal l'agence 4 présente-t-elle une anomalie de virements en août 2026 ?",
+            "answer": "L’agence 4 présente une anomalie de virements sur le canal **Mobile** en août 2026.",
+            "tools_used": [
+                "get_table_schema",
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "detect_channel_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 41,
+            "category": "amount_anomaly",
+            "question": "Quelle agence présente des montants de retraits exceptionnellement élevés les 17, 18 et 19 mars 2026 ?",
+            "answer": "L’agence **Agency_08** (ID 8) présente des montants de retraits exceptionnellement élevés les 17 , 18 et 19 mars 2026.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "detect_amount_anomalies"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 42,
+            "category": "visualization",
+            "question": "Trace l'évolution quotidienne du nombre de virements mobiles de l'agence 4 en août 2026.",
+            "answer": "Voici l’évolution quotidienne du nombre de virements mobiles (opération : « Bank Transfer », ID = 4) effectués par l’agence 4 en août 2026 :\n\n```\n📊 Chart: G:\\Mon Drive\\dossiers polytech\\Semestre 8(4A)\\projet_S8\\intelligent-data-agent\\outputs\\agency_4_count.png\n```\n\nLe graphique montre le nombre de transactions par jour pour chaque jour d’août 2026.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "execute_sql",
+                "execute_sql",
+                "get_table_schema",
+                "plot_daily_activity"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "chart_created": true
+            },
+            "passed": true
+        },
+        {
+            "id": 43,
+            "category": "unanswerable",
+            "question": "Quel était le taux directeur de la BCE lors des transactions du 17 mars 2026 ?",
+            "answer": "Je ne peux pas répondre à cette question à partir des données disponibles dans la base de données.",
+            "tools_used": [],
+            "checks": {
+                "abstention_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 44,
+            "category": "unanswerable",
+            "question": "Quelle était l'adresse IP utilisée pour chaque transaction de l'agence 8 ?",
+            "answer": "Je ne peux pas répondre à cette question, car la base de données ne contient pas d’information sur l’adresse IP des transactions.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema"
+            ],
+            "checks": {
+                "abstention_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 45,
+            "category": "unanswerable",
+            "question": "Quel employé a validé le plus de transactions dans la base ?",
+            "answer": "Je ne peux pas répondre à cette question avec les données disponibles. La base de données ne contient pas d’information sur les employés qui ont validé les transactions.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema",
+                "get_table_schema",
+                "get_table_schema"
+            ],
+            "checks": {
+                "abstention_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 46,
+            "category": "general",
+            "question": "À quoi sert une clé étrangère dans une base SQL ?",
+            "answer": "Une clé étrangère (foreign key) sert à maintenir l’intégrité référentielle entre deux tables.  \nElle garantit que la valeur d’une colonne (ou d’un groupe de colonnes) dans une table fait référence à une valeur existante dans une autre table (généralement la clé primaire de cette table).  \n\nFonctions principales :\n1. **Assurer la cohérence des données** : on ne peut pas insérer une valeur qui n’existe pas dans la table référencée, et on ne peut pas supprimer une ligne référencée tant qu’elle est utilisée ailleurs.\n2. **Définir les relations** : elle exprime clairement la relation « un‑à‑plusieurs » ou « un‑à‑un » entre les tables.\n3. **Faciliter les jointures** : les moteurs de base de données utilisent la clé étrangère pour optimiser les requêtes de jointure.\n4. **Contrôler les actions de mise à jour/suppression** : on peut spécifier des comportements comme `ON DELETE CASCADE` ou `ON UPDATE SET NULL` pour gérer automatiquement les modifications liées.\n\nEn résumé, la clé étrangère est un mécanisme de validation et de gestion des dépendances entre tables, assurant que les données restent cohérentes et correctement liées.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 47,
+            "category": "general",
+            "question": "Quelle est la différence entre GROUP BY et ORDER BY en SQL ?",
+            "answer": "**GROUP BY** et **ORDER BY** sont deux clauses SQL qui servent à des fins différentes :\n\n| Clause | Objectif principal | Quand elle est exécutée | Résultat |\n|--------|--------------------|------------------------|----------|\n| **GROUP BY** | Regroupe les lignes qui ont les mêmes valeurs dans une ou plusieurs colonnes afin de pouvoir appliquer des fonctions d’agrégation (SUM, COUNT, AVG, etc.). | Avant l’application des fonctions d’agrégation. | Un ensemble de lignes « groupées » où chaque groupe est représenté par une seule ligne dans le résultat. |\n| **ORDER BY** | Trie les lignes du résultat final selon une ou plusieurs colonnes, dans l’ordre croissant (ASC) ou décroissant (DESC). | Après que les lignes aient été sélectionnées, filtrées, agrégées, etc. | Un résultat trié, mais sans modifier le nombre de lignes ni les valeurs agrégées. |\n\n**En résumé**  \n- **GROUP BY** réduit le nombre de lignes en les combinant selon des critères d’agrégation.  \n- **ORDER BY** ne change pas le nombre de lignes ; il ne fait que les organiser dans un ordre spécifique.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 48,
+            "category": "general",
+            "question": "Qu'est-ce qu'une valeur aberrante en statistique ?",
+            "answer": "Une valeur aberrante (ou « outlier ») en statistique est une observation qui se situe très loin des autres données d’un ensemble.  \nElle peut résulter d’une erreur de mesure, d’une variation naturelle ou d’un phénomène particulier.  \nLes valeurs aberrantes sont souvent détectées par des méthodes statistiques (écarts‑type, IQR, z‑score, etc.) et peuvent influencer les estimations de moyenne, de variance ou de corrélation. Elles sont donc généralement examinées attentivement, corrigées ou exclues selon le contexte de l’analyse.",
+            "tools_used": [],
+            "checks": {
+                "tool_use_correct": true
+            },
+            "passed": true
+        },
+        {
+            "id": 49,
+            "category": "schema",
+            "question": "La table transactions contient-elle une colonne indiquant le statut de la transaction ?",
+            "answer": "Oui, la table **transactions** possède une colonne nommée **status** qui indique le statut de chaque transaction.",
+            "tools_used": [
+                "get_table_schema"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        },
+        {
+            "id": 50,
+            "category": "schema",
+            "question": "Quelles colonnes permettent de relier transactions aux comptes, clients, agences et types d'opérations ?",
+            "answer": "Les colonnes de la table **transactions** qui servent de clés de liaison sont :\n\n- `account_id` → compte  \n- `customer_id` → client  \n- `agency_id` → agence  \n- `operation_type_id` → type d’opération  \n\nCes colonnes permettent de relier chaque transaction aux tables correspondantes : `accounts`, `customers`, `agencies` et `operation_types`.",
+            "tools_used": [
+                "list_tables",
+                "get_table_schema"
+            ],
+            "checks": {
+                "tool_use_correct": true,
+                "tool_selection_correct": true,
+                "expected_content_found": true
+            },
+            "passed": true
+        }
+    ],
+    "metrics": {
+        "tool_use_accuracy": 100.0,
+        "tool_selection_accuracy": 100.0,
+        "content_accuracy": 100.0,
+        "answer_accuracy": 100.0,
+        "abstention_accuracy": 100.0,
+        "chart_success_rate": 100.0
+    }
+}
