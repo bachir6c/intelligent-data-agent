@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-
 import streamlit as st
 import re
 from pathlib import Path
@@ -16,6 +15,7 @@ SRC_PATH = Path(__file__).parent / "src"
 sys.path.append(str(SRC_PATH))
 
 from agent import run_agent
+from agent_service import query_agent
 
 
 st.set_page_config(
@@ -68,10 +68,19 @@ if question:
         with st.spinner("Analyzing..."):
 
             try:
-                result = run_agent(
-                    question,
-                    verbose=False
-                )
+                result = query_agent(question)
+
+                answer = result["answer"]
+                chart_path = result["chart_path"]
+
+                st.markdown(answer)
+
+                if chart_path:
+                    st.image(
+                        chart_path,
+                        caption="Generated chart",
+                        use_container_width=True
+                    )
 
                 if isinstance(result, dict):
                     answer = result.get("answer", "")
