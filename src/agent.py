@@ -1,8 +1,12 @@
 import json
-import os
 
-from dotenv import load_dotenv
 from groq import Groq
+
+from config import (
+    GROQ_API_KEY,
+    MODEL,
+    MAX_AGENT_ITERATIONS
+)
 from visualization_tools import plot_daily_activity
 from sql_tools import (
     list_tables,
@@ -18,13 +22,12 @@ from analysis_tools import (
     detect_amount_anomalies
 )
 
-load_dotenv()
+
 
 client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=GROQ_API_KEY
 )
 
-MODEL = "openai/gpt-oss-20b"
 
 
 # =========================================================
@@ -465,7 +468,7 @@ Important rules:
         }
     ]
 
-    max_iterations = 10
+    max_iterations = MAX_AGENT_ITERATIONS
     tool_history = []
     for iteration in range(max_iterations):
 
