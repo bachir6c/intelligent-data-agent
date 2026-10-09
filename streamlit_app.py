@@ -15,7 +15,7 @@ SRC_PATH = Path(__file__).parent / "src"
 sys.path.append(str(SRC_PATH))
 
 from agent import run_agent
-from agent_service import query_agent
+import requests
 
 
 st.set_page_config(
@@ -68,7 +68,15 @@ if question:
         with st.spinner("Analyzing..."):
 
             try:
-                result = query_agent(question)
+                response = requests.post(
+                    "http://127.0.0.1:8000/query",
+                    json={"question": question},
+                    timeout=120
+                )
+
+                response.raise_for_status()
+
+                result = response.json()
 
                 answer = result["answer"]
                 chart_path = result["chart_path"]
@@ -76,22 +84,6 @@ if question:
                 st.markdown(answer)
 
                 if chart_path:
-                    st.image(
-                        chart_path,
-                        caption="Generated chart",
-                        use_container_width=True
-                    )
-
-                if isinstance(result, dict):
-                    answer = result.get("answer", "")
-                else:
-                    answer = str(result)
-
-                st.markdown(answer)
-
-                chart_path = extract_chart_path(answer)
-
-                if chart_path and Path(chart_path).exists():
                     st.image(
                         chart_path,
                         caption="Generated chart",

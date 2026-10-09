@@ -6,8 +6,8 @@ from agent import run_agent
 
 def extract_chart_path(text):
     """
-    Extrait le chemin d'un graphique PNG éventuellement
-    présent dans la réponse de l'agent.
+    Extract the path of a PNG chart
+    from the agent's textual response.
     """
 
     match = re.search(
@@ -23,10 +23,10 @@ def extract_chart_path(text):
 
 def query_agent(question):
     """
-    Point d'entrée principal pour utiliser l'agent.
+    Main service entry point for the agent.
 
-    Retourne une réponse structurée exploitable
-    par Streamlit, FastAPI ou un autre client.
+    Returns a structured response that can be used
+    by FastAPI, Streamlit, or another client.
     """
 
     result = run_agent(
@@ -43,6 +43,44 @@ def query_agent(question):
         tools = []
 
     chart_path = extract_chart_path(answer)
+
+    # Remove Markdown image syntax
+    answer = re.sub(
+        r"!\[[^\]]*\]\(.*?\.png\)",
+        "",
+        answer,
+        flags=re.DOTALL
+    )
+
+    # Remove the raw chart path
+    if chart_path:
+        answer = answer.replace(
+            chart_path,
+            ""
+        )
+
+    # Remove empty Markdown code blocks
+    answer = re.sub(
+        r"```(?:text)?\s*```",
+        "",
+        answer,
+        flags=re.IGNORECASE
+    )
+
+    # Remove unnecessary chart-opening instructions
+    answer = re.sub(
+        r"Open the image to view the chart\.?",
+        "",
+        answer,
+        flags=re.IGNORECASE
+    )
+
+    # Remove excessive blank lines
+    answer = re.sub(
+        r"\n{3,}",
+        "\n\n",
+        answer
+    ).strip()
 
     if chart_path and not Path(chart_path).exists():
         chart_path = None
