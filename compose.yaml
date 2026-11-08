@@ -1,0 +1,31 @@
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      DOCUMENT_DIR: /app/documents
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - ./outputs:/app/outputs
+      - ./data/documents:/app/documents
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  streamlit:
+    build: .
+    command: ["python", "-m", "streamlit", "run", "streamlit_app.py", "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true"]
+    environment:
+      API_URL: http://api:8000/query
+    ports:
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./outputs:/app/outputs:ro
+    depends_on:
+      api:
+        condition: service_healthy

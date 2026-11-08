@@ -34,3 +34,24 @@ def test_extract_chart_path_returns_none():
     result = extract_chart_path(text)
 
     assert result is None
+
+
+def test_extract_chart_path_linux():
+    assert extract_chart_path(
+        "Chart generated at /app/outputs/agency_4_count_mobile.png"
+    ) == "/app/outputs/agency_4_count_mobile.png"
+
+
+def test_query_agent_uses_tool_chart_without_path_in_answer(monkeypatch, tmp_path):
+    import agent_service
+
+    chart = tmp_path / "chart.png"
+    chart.write_bytes(b"test")
+    monkeypatch.setattr(agent_service, "run_agent", lambda *args, **kwargs: {
+        "answer": "Here is the chart.",
+        "tools": ["plot_daily_activity"],
+        "chart_path": str(chart),
+    })
+    result = agent_service.query_agent("Plot daily activity")
+    assert result["chart_path"] == str(chart)
+    assert result["answer"] == "Here is the chart."

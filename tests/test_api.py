@@ -22,6 +22,11 @@ def test_health_endpoint():
     }
 
 
+def test_empty_question_rejected():
+    for question in ["", "   "]:
+        assert client.post("/query", json={"question": question}).status_code == 422
+
+
 def test_query_endpoint(monkeypatch):
     def fake_query_agent(question):
         return {
