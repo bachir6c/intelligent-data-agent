@@ -18,6 +18,11 @@ def extract_chart_path(text):
     if match:
         return match.group(1).strip()
 
+    # Docker uses Linux paths; retain support for existing Windows paths.
+    match = re.search(r"(/[^\n`]*?/outputs/[^\n`]+\.png)", text)
+    if match:
+        return match.group(1).strip()
+
     return None
 
 
@@ -42,7 +47,9 @@ def query_agent(question):
         answer = str(result)
         tools = []
 
-    chart_path = extract_chart_path(answer)
+    chart_path = (
+        result.get("chart_path") if isinstance(result, dict) else None
+    ) or extract_chart_path(answer)
 
     # Remove Markdown image syntax
     answer = re.sub(

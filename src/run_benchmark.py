@@ -1,7 +1,9 @@
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from agent import run_agent
+from config import MODEL
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -106,6 +108,9 @@ def check_answer(question_data, answer, tools_used):
     ) == "abstain":
 
         abstention_phrases = [
+            "aucune information",
+            "ne dispose pas",
+            "ne fournissent pas",
             "ne contient pas",
             "pas disponible",
             "impossible",
@@ -123,7 +128,7 @@ def check_answer(question_data, answer, tools_used):
     return checks
 
 
-def run_benchmark():
+def run_benchmark(fresh=False):
 
     with open(
         QUESTIONS_PATH,
@@ -133,7 +138,7 @@ def run_benchmark():
         questions = json.load(file)
 
     # Charger les anciens résultats s'ils existent
-    if RESULTS_PATH.exists():
+    if RESULTS_PATH.exists() and not fresh:
         with open(
             RESULTS_PATH,
             "r",
@@ -211,6 +216,11 @@ def run_benchmark():
             answer,
             tools_used
         )
+        if question_data.get("expected_chart"):
+            chart_path = result.get("chart_path")
+            checks["chart_created"] = bool(
+                chart_path and Path(chart_path).is_file()
+            )
 
         question_passed = (
             all(checks.values())
@@ -325,6 +335,9 @@ def run_benchmark():
     )
 
     summary = {
+        "run_at_utc": datetime.now(timezone.utc).isoformat(),
+        "model": MODEL,
+        "fresh": fresh,
         "total_questions": len(questions),
         "evaluated": total_evaluated,
         "passed": passed,
@@ -377,4 +390,12 @@ def run_benchmark():
         f"{RESULTS_PATH}"
     )
 if __name__ == "__main__":
-    run_benchmark()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fresh", action="store_true", help="Rerun all cases instead of reusing passed results")
+    parser.add_argument("--output", type=Path, help="Write results to a separate file")
+    arguments = parser.parse_args()
+    if arguments.output:
+        RESULTS_PATH = arguments.output.resolve()
+        RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    run_benchmark(fresh=arguments.fresh)

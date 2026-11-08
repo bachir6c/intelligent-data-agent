@@ -1,383 +1,112 @@
-# Intelligent Data Analysis Agent for SQL Databases
+# Intelligent Data Agent V2
 
-An autonomous LLM-powered data analysis agent capable of answering natural-language questions about a SQL database.
-
-The agent can inspect the database schema, generate and execute SQL queries, recover from SQL errors, perform statistical analyses with Python/Pandas, detect anomalies and trends, and generate visualizations.
-
-## Features
-
-- Natural-language interaction with SQL databases
-- Automatic schema exploration
-- Read-only SQL generation and execution
-- Automatic SQL error correction
-- Dynamic tool selection
-- Anomaly detection
-- Trend analysis
-- Channel and transaction amount analysis
-- Automatic Matplotlib visualizations
-- Explicit abstention when requested information is unavailable
-- Benchmark-based evaluation
-
-## Architecture
-
-The agent combines:
-
-- **LLM:** Groq API with `openai/gpt-oss-20b`
-- **Database:** SQLite
-- **Data analysis:** Pandas / NumPy
-- **Visualization:** Matplotlib
-- **Tool calling:** custom Python functions for SQL and statistical analysis
-
-Main tools include:
-
-- `list_tables`
-- `get_table_schema`
-- `execute_sql`
-- `detect_anomalies`
-- `detect_anomalous_agencies`
-- `detect_channel_anomalies`
-- `detect_trend_anomalies`
-- `detect_amount_anomalies`
-- `plot_daily_activity`
-
-## Benchmark
-
-The agent was evaluated on a controlled benchmark of **50 questions** covering:
-
-- SQL queries
-- Database schema exploration
-- Aggregations
-- Temporal analysis
-- Anomaly detection
-- Trend detection
-- Tool selection
-- Visualization
-- Abstention on unavailable information
-
-### Results
-
-| Metric | Result |
-|---|---:|
-| Questions passed | **50 / 50** |
-| Tool use | **100%** |
-| Tool selection | **100%** |
-| Content checks | **100%** |
-| Answer checks | **100%** |
-| Abstention | **100%** |
-| Visualization | **100%** |
-
-These results refer specifically to the controlled benchmark included in this repository and should not be interpreted as general 100% accuracy on arbitrary questions.
-
-## Project Structure
-
-```text
-intelligent-data-agent/
-├── benchmarks/
-│   ├── questions.json
-│   └── results.json
-├── data/
-│   └── ground_truth.json
-├── src/
-│   ├── agent.py
-│   ├── sql_tools.py
-│   ├── analysis_tools.py
-│   ├── visualization_tools.py
-│   ├── create_database.py
-│   ├── generate_data.py
-│   └── run_benchmark.py
-├── .gitignore
-├── requirements.txt
-└── README.md
-
-# Intelligent Data Analysis Agent for SQL Databases
-
-An autonomous LLM-powered data analysis agent capable of answering natural-language questions about a SQL database.
-
-The agent can inspect the database schema, generate and execute SQL queries, recover from SQL errors, perform statistical analyses with Python/Pandas, detect anomalies and trends, and generate visualizations.
+A Python agent for SQL banking data and local reference documents. FastAPI exposes
+its tools and Streamlit provides the chat and document upload interface.
 
 ## Features
 
-- Natural-language interaction with SQL databases
-- Automatic schema exploration
-- Read-only SQL generation and execution
-- Automatic SQL error correction
-- Dynamic tool selection
-- Anomaly detection
-- Trend analysis
-- Channel and transaction amount analysis
-- Automatic Matplotlib visualizations
-- Explicit abstention when requested information is unavailable
-- Benchmark-based evaluation
+- Read-only SQL, schema inspection and tool-based error recovery.
+- Pandas statistical analysis, anomaly and trend detection.
+- Matplotlib charts shared between FastAPI and Streamlit containers.
+- Retrieval-augmented answers from UTF-8 `.txt` and `.md` documents, with
+  `[filename#chunk]` references. BM25 keyword ranking retrieves overlapping
+  passages; the Groq model uses these passages to generate answers.
+- Hybrid questions can use SQL facts and document context in the same tool loop.
+- Pytest tests and a GitHub Actions workflow for tests and Docker image builds.
 
-## Architecture
+## Run with Docker
 
-The agent combines:
+Use Python 3.11 for local development. For Docker, start Docker Desktop with Linux
+containers. From this project folder:
 
-- **LLM:** Groq API with `openai/gpt-oss-20b`
-- **Database:** SQLite
-- **Data analysis:** Pandas / NumPy
-- **Visualization:** Matplotlib
-- **Tool calling:** custom Python functions for SQL and statistical analysis
+1. Create `.env` containing `GROQ_API_KEY=your-key`. Optionally set `GROQ_MODEL`.
+2. Ensure `data/banking.db` exists. Existing data is mounted read-only by the API.
+3. Run `docker compose up --build`.
+4. Open http://localhost:8501. API docs: http://localhost:8000/docs.
+5. Stop with Ctrl+C and `docker compose down`. Local data and documents remain.
 
-Main tools include:
+`Dockerfile` builds the Python environment. `compose.yaml` starts the API and UI,
+waits for API health, and mounts persistent charts and reference documents.
+`.dockerignore` keeps secrets, datasets and local environments out of builds.
+Only the API receives the Groq key. Published ports bind to localhost.
 
-- `list_tables`
-- `get_table_schema`
-- `execute_sql`
-- `detect_anomalies`
-- `detect_anomalous_agencies`
-- `detect_channel_anomalies`
-- `detect_trend_anomalies`
-- `detect_amount_anomalies`
-- `plot_daily_activity`
+Local Streamlit defaults to `http://127.0.0.1:8000/query`; Docker sets
+`API_URL=http://api:8000/query`. Uploaded documents live in `data/documents/` on
+the host, mounted at `/app/documents` in the API container. They are not committed.
 
-## Benchmark
+## Document demonstration
 
-The agent was evaluated on a controlled benchmark of **50 questions** covering:
+Upload `docs/sample_documents/demo_policy.txt` through the sidebar, then ask:
 
-- SQL queries
-- Database schema exploration
-- Aggregations
-- Temporal analysis
-- Anomaly detection
-- Trend detection
-- Tool selection
-- Visualization
-- Abstention on unavailable information
+- According to the demonstration policy, when do Mobile transfers require supervisor approval? Cite the source.
+- Count completed Mobile transactions for agency 4 in February 2025, then explain the review policy using the uploaded document. Cite the document.
+- What does the uploaded policy say about mortgage interest rates?
 
-### Results
+The last question should produce an explicit statement that the document does not
+provide that information. The example is synthetic and is not real bank policy.
+Duplicate filenames return an error; rename a file before uploading another version.
 
-| Metric | Result |
-|---|---:|
-| Questions passed | **50 / 50** |
-| Tool use | **100%** |
-| Tool selection | **100%** |
-| Content checks | **100%** |
-| Answer checks | **100%** |
-| Abstention | **100%** |
-| Visualization | **100%** |
+Supported files: UTF-8 text/Markdown, maximum 1 MB each. PDFs, scanned documents,
+embeddings, multilingual semantic matching and per-user collections are not
+implemented. Retrieval is keyword-based: use words present in the documents.
+Document instructions are treated as untrusted data in the agent prompt; this is
+not a guarantee against all prompt-injection attacks. This is a local, single-user
+demo, without authentication or public hosting hardening.
 
-These results refer specifically to the controlled benchmark included in this repository and should not be interpreted as general 100% accuracy on arbitrary questions.
+## Tests
 
-## Project Structure
-
-```text
-intelligent-data-agent/
-├── benchmarks/
-│   ├── questions.json
-│   └── results.json
-├── data/
-│   └── ground_truth.json
-├── src/
-│   ├── agent.py
-│   ├── sql_tools.py
-│   ├── analysis_tools.py
-│   ├── visualization_tools.py
-│   ├── create_database.py
-│   ├── generate_data.py
-│   └── run_benchmark.py
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/bachir6c/intelligent-data-agent.git
-cd intelligent-data-agent
-```
-
-Create a virtual environment:
-
-```bash
-python -m venv .venv
-```
-
-Activate it on Windows:
+Activate a working Python environment, then run:
 
 ```powershell
-.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pytest tests -v
 ```
 
-On Linux/macOS:
+Tests generate a seeded banking database in a temporary directory. They do not
+need your private database or a real Groq API key. Tests cover SQL validation,
+analysis anomalies, API behavior, document ranking and uploads, chart handoff,
+and simulated hybrid/tool-retry conversations. Simulated model tests check the
+tool loop; live model behavior must also be checked separately.
 
-```bash
-source .venv/bin/activate
+`.github/workflows/tests.yml` runs tests and builds Docker on pushes and pull
+requests. Adding the file does not prove that a hosted run has succeeded: push
+it to GitHub and inspect the Actions tab. No Groq secret is needed for CI.
+
+## Benchmark
+
+`benchmarks/questions.json` contains 50 original evaluation cases. The existing
+`benchmarks/results.json` records 50/50 passing in a historical run; it is not a
+fresh validation of every later change and does not evaluate document retrieval.
+The checks are programmed assertions, not proof of general model accuracy.
+
+By default the benchmark resumes and skips previously passed cases. To rerun
+all cases without overwriting historical results:
+
+```powershell
+python src/run_benchmark.py --fresh --output benchmarks/results-current.json
 ```
 
-Install the dependencies:
+This calls Groq using your configured key and may incur usage or hit rate limits.
 
-```bash
-pip install -r requirements.txt
+## Creating demo data from scratch
+
+Only in a new project copy with no data you need to keep, run these scripts in
+order. Generation replaces existing dataset contents:
+
+```powershell
+python src/create_database.py
+python src/generate_data.py
+python src/inject_anomalies.py
+python src/add_anomalies.py
 ```
 
-Create a `.env` file at the root of the project:
+## Structure
 
-```env
-GROQ_API_KEY=your_groq_api_key
-```
-
-## Run the Agent
-
-Run:
-
-```bash
-python src/agent.py
-```
-
-Then ask a question in natural language.
-
-Example:
-
-```text
-Quel type d'opération présente une forte hausse progressive
-à l'agence 21 en mai 2026 ?
-```
-
-Example answer:
-
-```text
-Cash Deposit
-```
-
-The agent automatically selects the appropriate tools, queries the database and performs the required analysis.
-
-## Streamlit Interface
-
-The project includes a Streamlit web interface for interacting with the agent through a chat-like application.
-
-Run the interface with:
-
-```bash
-python -m streamlit run streamlit_app.py
-```
-
-The interface allows users to:
-
-- ask natural-language questions about the SQL database;
-- receive answers generated by the agent;
-- trigger SQL, statistical analysis and anomaly-detection tools;
-- generate and display visualizations directly in the application.
-
-Example:
-
-```text
-Plot the daily number of mobile bank transfers
-for agency 4 in August 2026.
-```
-
-The agent automatically identifies the relevant operation type, agency, channel and metric, then generates the corresponding visualization.
-
-## Example of Tool Calling
-
-For the previous question, the agent can automatically call:
-
-```text
-detect_trend_anomalies(
-    agency_id=21,
-    start_date="2026-05-01",
-    end_date="2026-05-31"
-)
-```
-
-and identify:
-
-```text
-Cash Deposit
-Weekly counts: [1, 11, 25, 38, 60]
-```
-
-## Visualization
-
-The agent can also generate plots from natural-language requests.
-
-Example:
-
-```text
-Plot the daily number of mobile bank transfers
-for agency 4 in August 2026.
-```
-
-The agent automatically identifies:
-
-- Agency: `4`
-- Operation type: `Bank Transfer`
-- Channel: `Mobile`
-- Metric: transaction count
-
-and generates the corresponding visualization:
-
-![Daily mobile bank transfers for Agency 4](docs/images/agency_4_count_mobile.png)
-
-## Run the Benchmark
-
-Run:
-
-```bash
-python src/run_benchmark.py
-```
-
-The benchmark evaluates the agent on 50 controlled questions.
-
-Results are stored in:
-
-```text
-benchmarks/results.json
-```
-
-Current benchmark result:
-
-```text
-Questions:       50
-Passed:          50
-Failed:           0
-Accuracy:       100%
-
-Tool use:       100%
-Tool selection: 100%
-Content:        100%
-Answer:         100%
-Abstention:     100%
-Chart:          100%
-```
-
-## Safety and Reliability
-
-The agent is designed to avoid inventing information about the database.
-
-It:
-
-- inspects the database schema before using unknown tables or columns;
-- executes only read-only SQL queries;
-- uses database results as the source of truth;
-- can recover from SQL generation errors;
-- explicitly abstains when requested information is unavailable;
-- does not assume unavailable metadata such as currencies or external information.
-
-## Security
-
-API credentials are loaded through environment variables.
-
-The `.env` file is excluded from Git through `.gitignore` and must never be committed to the repository.
-
-## Technologies
-
-- Python
-- SQL
-- SQLite
-- Pandas
-- NumPy
-- Matplotlib
-- Groq API
-- LLM tool calling
-- Git / GitHub
-
-## Author
-
-**Mouhamed Bachir CISSE**
-
-Engineering student in Applied Mathematics and Modeling  
-Polytech Lyon
+- `src/agent.py`: model tool definitions, routing and execution loop.
+- `src/document_tools.py`: text storage, chunking and BM25 retrieval.
+- `src/agent_service.py`: structured answers and chart path handling.
+- `src/sql_tools.py`, `src/analysis_tools.py`, `src/visualization_tools.py`: data tools.
+- `api/main.py`: health, query and document upload endpoints.
+- `streamlit_app.py`: chat, charts and document upload.
+- `tests/`: isolated automated checks.
+- `benchmarks/`: evaluation cases and saved results.

@@ -1,0 +1,10 @@
+DEMONSTRATION POLICY — SYNTHETIC DATA, NOT A REAL BANK POLICY
+
+Mobile transfer review
+In this demonstration, Mobile transfers require supervisor approval when an anomaly is flagged.
+A statistical anomaly is a signal for review, not proof of fraud.
+Reviewers should compare transaction counts and amounts with the historical baseline.
+
+Data scope
+Transaction counts, dates and amounts must be queried from the SQL database.
+This document provides explanatory context only and contains no transaction totals.

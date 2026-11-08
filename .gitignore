@@ -4,6 +4,7 @@ __pycache__/
 .env
 
 data/*.db
+data/documents/
 
 .pytest_cache/
 .ipynb_checkpoints/
